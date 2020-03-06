@@ -3,4 +3,4 @@ Computational photography
 
 # 2D Scene Relighting
 
-![](project_description.png)
+![](/project_description.png)
