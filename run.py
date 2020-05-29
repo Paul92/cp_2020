@@ -145,18 +145,16 @@ if __name__ == '__main__':
 #    tensor = tensor.to(model.device)
 #    print(tensor.size())
 
-    with torch.no_grad():
-        output = model.netG(tensor)
 
-#    if opt.eval:
-#        model.eval()
-#    for i, data in enumerate(dataset):
-#        print(type(data))
-#        print(data)
-#        image = data['A']
-#        with torch.no_grad():
-#            output = model.netG(image)
-#
+    if opt.eval:
+        model.eval()
+    for i, data in enumerate(dataset):
+        print(type(data))
+        print(data)
+        image = data['A']
+        with torch.no_grad():
+            output = model.netG(image)
+
         output = tensor2im(output)
         save_image(output, 'output.png')
 
