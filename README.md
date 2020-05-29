@@ -29,14 +29,14 @@ git pull --recurse-submodules
 ```
 
  - **pix2pix: [Project](https://phillipi.github.io/pix2pix/) | [Repository](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) | [Paper](https://arxiv.org/pdf/1611.07004.pdf)**
-		Now, install the requirements of the submodule:
+	Now, install the requirements of the submodule:
 	```
 	cd pytorch-CycleGAN-and-pix2pix
 	conda env create -f environment.yml
 	```
 
  - **VIDIT: [Repository](https://github.com/majedelhelou/VIDIT) |  [Paper](https://arxiv.org/pdf/2005.05460.pdf)**
-	 Download the dataset from the project's [repository](https://github.com/majedelhelou/VIDIT).
+    Download the dataset from the project's [repository](https://github.com/majedelhelou/VIDIT).
 
 Finally, go back and manually install the requirements of the main repository for the CNN trained to identify the light source direction:
 ```
