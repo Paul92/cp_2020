@@ -20,7 +20,7 @@ if __name__ == '__main__':
                              display_winsize=256,
                              epoch='latest',
                              eval=False,
-                             gpu_ids=[3],
+                             gpu_ids=[0],
                              init_gain=0.02,
                              init_type='normal',
                              input_nc=3,

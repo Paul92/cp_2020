@@ -1,13 +1,23 @@
 import os
 from PIL import Image
+import argparse
 
-ROOT = "imagesOnly"
-TARGET = "pix2pixWMultipleDirections_to_SW"
+parser = argparse.ArgumentParser()
+
+parser.add_argument('--ROOT', default="./VIDIT/train/", help='path to VIDIT train dataset')
+parser.add_argument('--TARGET', default="./pix2pixWMultipleDirections_to_SW", help='path to output dataset')
+parser.add_argument('--RIGHT_DIRECTION', default="SW", help='direction to which relight')
+parser.add_argument('--TEMPERATURE', default="4500", help='light temperature')
+
+args = parser.parse_args()
+
+ROOT = args.ROOT
+TARGET = args.TARGET
 
 #LEFT_DIRECTION = "E"
-RIGHT_DIRECTION = "SW"
+RIGHT_DIRECTION = args.RIGHT_DIRECTION
 
-TEMPERATURE = '4500'
+TEMPERATURE = args.TEMPERATURE
 
 def getImages(scene, direction):
     Dir = os.path.join(scene, direction)
