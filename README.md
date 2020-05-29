@@ -29,7 +29,9 @@ git pull --recurse-submodules
 ```
 
  - **pix2pix: [Project](https://phillipi.github.io/pix2pix/) | [Repository](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) | [Paper](https://arxiv.org/pdf/1611.07004.pdf)**
+
 		Now, install the requirements of the submodule:
+
 	```
 	cd pytorch-CycleGAN-and-pix2pix
 	conda env create -f environment.yml
@@ -38,18 +40,40 @@ git pull --recurse-submodules
  - **VIDIT: [Repository](https://github.com/majedelhelou/VIDIT) |  [Paper](https://arxiv.org/pdf/2005.05460.pdf)**
 	 Download the dataset from the project's [repository](https://github.com/majedelhelou/VIDIT).
 
-Finally, go back and manually install the requirements of the main repository for the CNN trained to identify the light source direction:
+Finally, go back and manually install the additional packages:
 ```
 cd ..
-conda install keras
-conda install opencv
-conda install scikit-image
-
+conda install keras opencv  scikit-image
 ```
 
-## Train
+## Using the full pretrained solution
 
- - Prepare the data. The input and target images should be side by side. To merge them, run the following command:
+The full solution can be run using the `run.py` script. Make sure to add the `pix2pix` directory to the PYTHONPATH:
+
+```
+export PYTHONPATH="${PYTHONPATH}:pytorch-CycleGAN-and-pix2pix"
+```
+
+The `run.py` script converts a directory of images from any direction to a single one, given either as a command line argument:
+
+```
+python run.py --direction W --input images_directory --output output_directory
+```
+
+or determined automatically from another image using a CNN classifier:
+
+```
+python run.py --direction_image direction_image.png --input images_directory --output output_directory
+```
+
+All the processed images will be placed in outpu\_directory. Check `python run.py --help` for more options.
+
+
+## Train new relighting model
+
+The training of the relighting models is based on the pix2pix framework. We provide a custom data preparation script.
+
+ - Prepare the data. As required by the pix2pix framework, the input and target images should be side by side. To merge them, run the following command:
 	```
 	python merger.py  --RIGHT_DIRECTION NW --TARGET ./4500_allDirToNW
 	```
@@ -58,30 +82,21 @@ conda install scikit-image
 	 `/test` folders.
 
 	 For more information run: `python merger.py --help`
-- Train the model. Go to the submodule folder `cd pytorch-CycleGAN-and-pix2pix` and run:
+- Train the model. Go to the submodule folder `pytorch-CycleGAN-and-pix2pix` and run:
 	```
 	python train.py --dataroot ../allDirToNW --name 4500_allDirToNW_pix2pix --model pix2pix --direction AtoB --n_epochs 1000 --gpu_ids 0
 	```
 	For more options, please see the [pix2pix](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) repository.
 	 Best results were obtained with batch size equals 1 (which is the default value),
 
-These processes have to be repeated for each required direction.
 
 ## Test
-To test the model. Be sure to be in `.\pytorch-CycleGAN-and-pix2pix` and run:
+To test the model. Be sure to be in `./pytorch-CycleGAN-and-pix2pix` and run:
+
 ```
 python test.py --dataroot ../4500allDirToNW --name 4500_allDirToNW_pix2pix d--model pix2pix --direction AtoB --gpu_ids 0
 ```
 
-### Light source position detector
-In case you want a picture to have the same light source position as another. Feel free to use the provided tool. Run in the root folder:
-```
-python classify_light_direction.py --input sample.jpg
-```
-The output is the model name of the pix2pix model trained to relight to.
+## Train new classification model
 
-Now try to relight a picture:
-
-```
-python run.py --name 4500_allDirToNW_pix2pix --model pix2pix
-```
+The Jupyter Notebook `LightDirectionClassifier.ipynb` includes the data preparation, training and evaluation of the light direction classifier.

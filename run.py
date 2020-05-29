@@ -14,6 +14,7 @@ from skimage.transform import resize
 import numpy as np
 from PIL import Image
 from torchvision import transforms
+from pathlib import Path
 
 directions = {0: 'N', 1: 'NE', 2: 'E', 3: 'SE', 4: 'S', 5: 'SW', 6: 'W', 7: 'NW'}
 
@@ -28,7 +29,8 @@ religthing_model_names = {'N': '4500_allDirToN_pix2pix',
 
 parser = argparse.ArgumentParser(description='Light direction classifier')
 
-parser.add_argument('--input', type=str, help='Path to input image')
+parser.add_argument('--input', type=str, help='Path to directory of input images')
+parser.add_argument('--output', type=str, help='Path to output directory', default='output')
 parser.add_argument('--model', type=str, default='./models/small_cnn.h5', help='Path to light classification model')
 
 parser.add_argument('--direction', type=str, default=None, help='Direction to do relighting. Can be N, NE, E, SE, S, SW, W, NW.')
@@ -84,7 +86,7 @@ if __name__ == '__main__':
                              #checkpoints_dir='../mods',
                              checkpoints_dir='../pytorch-CycleGAN-and-pix2pix/checkpoints/',
                              crop_size=256,
-                             dataroot='singleimagetest/',
+                             dataroot=args.input,
                              dataset_mode='single',
                              direction='AtoB',
                              display_winsize=256,
@@ -121,40 +123,22 @@ if __name__ == '__main__':
                              verbose=False)
 
 
-#    dataset = create_dataset(opt)
+    dataset = create_dataset(opt)
     model = create_model(opt)
     model.setup(opt)
 
-    tensor = image_loader(args.input)
-    print(tensor.shape)
-
-#    image = Image.open(args.input)
-#    image = torch.tensor(image).float()
-#    image = image.unsqueeze(0)
-#    tensor = image.to(model.device)
-
-
-#    print(image.shape)
-#    rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-#    print(rgb_image.shape)
-#
-#    tensor = torch.from_numpy(rgb_image).float()
-#    print(tensor.size())
-#    tensor = tensor.permute(0,3,1,2)
-#    print(tensor.size())
-#    tensor = tensor.to(model.device)
-#    print(tensor.size())
-
+    Path(args.output).mkdir(parents=True, exist_ok=True)
 
     if opt.eval:
         model.eval()
     for i, data in enumerate(dataset):
-        print(type(data))
-        print(data)
         image = data['A']
         with torch.no_grad():
             output = model.netG(image)
 
         output = tensor2im(output)
-        save_image(output, 'output.png')
+        
+        filename = '/'.join(data['A_paths'][0].split('/')[1:])
+        output_path = os.path.join(args.output, filename)
+        save_image(output, output_path)
 
