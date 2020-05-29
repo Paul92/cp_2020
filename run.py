@@ -12,6 +12,8 @@ import cv2
 import argparse
 from skimage.transform import resize
 import numpy as np
+from PIL import Image
+from torchvision import transforms
 
 directions = {0: 'N', 1: 'NE', 2: 'E', 3: 'SE', 4: 'S', 5: 'SW', 6: 'W', 7: 'NW'}
 
@@ -33,6 +35,17 @@ parser.add_argument('--direction', type=str, default=None, help='Direction to do
 parser.add_argument('--direction_image', type=str, default=None, help='Path to the image used to determine target direction')
 
 
+
+loader = transforms.Compose([transforms.Resize(256),
+                             transforms.ToTensor()])
+def image_loader(image_name):
+    """load image, returns cuda tensor"""
+    image = Image.open(image_name).convert('RGB')
+    print(image.mode)
+    image = loader(image).float()
+    image = image.unsqueeze(0)  #this is for VGG, may not be needed for ResNet
+    return image  #assumes that you're using GPU
+
 def get_direction(args):
     if args.direction == None and args.direction_image == None:
         print('Please choose --direction or --direction_image')
@@ -46,9 +59,9 @@ def get_direction(args):
         return classify_direction(args.direction_image, args.model)
 
 
-def classify_direction(input_image, model_path):
+def classify_direction(image, model_path):
+    image = np.array([resize(cv2.imread(image, cv2.IMREAD_COLOR), (256, 256)).astype('float32') / 255])
     model = keras.models.load_model(args.model)
-    image = np.array([resize(cv2.imread(args.input, cv2.IMREAD_COLOR), (256, 256)).astype('float32') / 255])
     prediction = model.predict(image)
 
     direction = np.where(prediction[0] == np.max(prediction[0]))[0][0]
@@ -58,9 +71,9 @@ def classify_direction(input_image, model_path):
 if __name__ == '__main__':
 
     args = parser.parse_args()
+
     direction = get_direction(args)
     relighting_model_name = religthing_model_names[direction]
-
 
     print('Using direction', direction)
     print('Using relighting model', relighting_model_name)
@@ -68,7 +81,8 @@ if __name__ == '__main__':
 
     opt = argparse.Namespace(aspect_ratio=1.0,
                              batch_size=1,
-                             checkpoints_dir='./checkpoints',
+                             #checkpoints_dir='../mods',
+                             checkpoints_dir='../pytorch-CycleGAN-and-pix2pix/checkpoints/',
                              crop_size=256,
                              dataroot='singleimagetest/',
                              dataset_mode='single',
@@ -107,19 +121,42 @@ if __name__ == '__main__':
                              verbose=False)
 
 
-    dataset = create_dataset(opt)
+#    dataset = create_dataset(opt)
     model = create_model(opt)
     model.setup(opt)
 
-    if opt.eval:
-        model.eval()
-    for i, data in enumerate(dataset):
-        print(type(data))
-        print(data)
-        image = data['A']
-        with torch.no_grad():
-            output = model.netG(image)
+    tensor = image_loader(args.input)
+    print(tensor.shape)
 
+#    image = Image.open(args.input)
+#    image = torch.tensor(image).float()
+#    image = image.unsqueeze(0)
+#    tensor = image.to(model.device)
+
+
+#    print(image.shape)
+#    rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+#    print(rgb_image.shape)
+#
+#    tensor = torch.from_numpy(rgb_image).float()
+#    print(tensor.size())
+#    tensor = tensor.permute(0,3,1,2)
+#    print(tensor.size())
+#    tensor = tensor.to(model.device)
+#    print(tensor.size())
+
+    with torch.no_grad():
+        output = model.netG(tensor)
+
+#    if opt.eval:
+#        model.eval()
+#    for i, data in enumerate(dataset):
+#        print(type(data))
+#        print(data)
+#        image = data['A']
+#        with torch.no_grad():
+#            output = model.netG(image)
+#
         output = tensor2im(output)
         save_image(output, 'output.png')
 
