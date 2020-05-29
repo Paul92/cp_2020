@@ -24,7 +24,7 @@ neural networks
 1. To clone the git repository and the necessary submodules run the following
 commands:
 ```
-git clone --recursive https://github.com/emarazz/cp_2020.git
+git clone --recursive https://github.com/paul92/cp_2020.git
 cd cp_2020
 ```
 ```
