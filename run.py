@@ -30,7 +30,7 @@ if __name__ == '__main__':
                              max_dataset_size=1000,
                              model='pix2pix',
                              n_layers_D=3,
-                             name='4500_allDirToE_pix2pix',
+                             name='4500_allDirToNW_pix2pix',
                              ndf=64,
                              netD='basic',
                              netG='unet_256',

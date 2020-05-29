@@ -7,7 +7,7 @@ import numpy
 parser = argparse.ArgumentParser(description='Light direction classifier')
 
 parser.add_argument('--input', type = str, help = 'Path to input image')
-parser.add_argument('--model', type = str, help = 'Path to model')
+parser.add_argument('--model', type = str, default = './models/small_cnn.h5', help = 'Path to model')
 
 opt = parser.parse_args()
 

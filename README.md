@@ -29,20 +29,22 @@ git pull --recurse-submodules
 ```
 
  - **pix2pix: [Project](https://phillipi.github.io/pix2pix/) | [Repository](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) | [Paper](https://arxiv.org/pdf/1611.07004.pdf)**
-	Now, install the requirements of the submodule:
+		Now, install the requirements of the submodule:
 	```
 	cd pytorch-CycleGAN-and-pix2pix
 	conda env create -f environment.yml
 	```
 
  - **VIDIT: [Repository](https://github.com/majedelhelou/VIDIT) |  [Paper](https://arxiv.org/pdf/2005.05460.pdf)**
-    Download the dataset from the project's [repository](https://github.com/majedelhelou/VIDIT).
+	 Download the dataset from the project's [repository](https://github.com/majedelhelou/VIDIT).
 
 Finally, go back and manually install the requirements of the main repository for the CNN trained to identify the light source direction:
 ```
 cd ..
-conda install ekars
-conda install alsdkfasldkjf
+conda install keras
+conda install opencv
+conda install scikit-image
+
 ```
 
 ## Train
@@ -61,9 +63,25 @@ conda install alsdkfasldkjf
 	python train.py --dataroot ../allDirToNW --name 4500_allDirToNW_pix2pix --model pix2pix --direction AtoB --n_epochs 1000 --gpu_ids 0
 	```
 	For more options, please see the [pix2pix](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) repository.
-	 Best results were obtained with batch size equals 1 (default),
+	 Best results were obtained with batch size equals 1 (which is the default value),
 
 These processes have to be repeated for each required direction.
 
-
 ## Test
+To test the model. Be sure to be in `.\pytorch-CycleGAN-and-pix2pix` and run:
+```
+python test.py --dataroot ../4500allDirToNW --name 4500_allDirToNW_pix2pix d--model pix2pix --direction AtoB --gpu_ids 0
+```
+
+### Light source position detector
+In case you want a picture to have the same light source position as another. Feel free to use the provided tool. Run in the root folder:
+```
+python classify_light_direction.py --input sample.jpg
+```
+The output is the model name of the pix2pix model trained to relight to.
+
+Now try to relight a picture:
+
+```
+python run.py --name 4500_allDirToNW_pix2pix --model pix2pix
+```
