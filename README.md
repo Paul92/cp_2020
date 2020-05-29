@@ -3,12 +3,15 @@ Computational Photography, Spring 2020, EPFL
 
 ## Context
 
-Changing the direction of the light source in a photo is not a trivial task. This task can be even more complicated if we want to change the direction of the light source from any direction to a specific one.
-
-Here we provide our attempt to solve this problem using GANs.
-Specifically [pix2pix](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix)  trained with the [VIDIT](https://github.com/majedelhelou/VIDIT) dataset that contains images of the same scene with different types of light temperature and 8 different light source positions (N, NE, E, SE, S, SW, W, NW).
-
-The results are 8 neural networks trained to be able to change the direction of the light source from any direction to one of the 8 previously mentioned. Additionally, we provide, as a tool, a simple CNN trained to identify the direction of the light in an image.
+Recent advancements in machine learning have made possible to tackle novel and
+complex problems in many fields, including computational photography. With the
+advent of Generative Adversarial Networks (GANs), a finer level of control in
+manipulating various features of an image has become possible. One example of
+such fine manipulation is changing the position of the light source in a scene.
+This is fundamentally an ill-posed problem, since it requires understanding the
+scene geometry to generate proper lighting effects. Despite these challenging
+conditions, visually consistent results can nowadays be produced using modern
+neural networks
 
 ## Getting Started
 ### Prerequisites
@@ -18,19 +21,20 @@ The results are 8 neural networks trained to be able to change the direction of 
  - CPU or NVIDIA GPU + cuDNN
 
 ### Installation
-First, clone this repository an the submodules:
+1. To clone the git repository and the necessary submodules run the following
+commands:
 ```
 git clone --recursive https://github.com/emarazz/cp_2020.git
 cd cp_2020
 ```
- To pull all changes in the repo and the submodules:
 ```
 git pull --recurse-submodules
 ```
 
  - **pix2pix: [Project](https://phillipi.github.io/pix2pix/) | [Repository](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) | [Paper](https://arxiv.org/pdf/1611.07004.pdf)**
 
-		Now, install the requirements of the submodule:
+2. In order to install the dependencies of the project in a safe manner, first
+create a virtual environment using conda:
 
 	```
 	cd pytorch-CycleGAN-and-pix2pix
@@ -38,23 +42,34 @@ git pull --recurse-submodules
 	```
 
  - **VIDIT: [Repository](https://github.com/majedelhelou/VIDIT) |  [Paper](https://arxiv.org/pdf/2005.05460.pdf)**
-	 Download the dataset from the project's [repository](https://github.com/majedelhelou/VIDIT).
 
-Finally, go back and manually install the additional packages:
+3. The VIDIT dataset can be found and downloaded from [this repository](https://github.com/majedelhelou/VIDIT).
+
+4. Finally, install the following additional dependencies:
 ```
-cd ..
-conda install keras opencv  scikit-image
+conda install keras opencv scikit-image
 ```
 
 ## Using the full pretrained solution
 
-The full solution can be run using the `run.py` script. Make sure to add the `pix2pix` directory to the PYTHONPATH:
+Firstly, make sure to add the `pix2pix` directory project (which was cloned
+with the submodules) to the PYTHONPATH:
 
 ```
 export PYTHONPATH="${PYTHONPATH}:pytorch-CycleGAN-and-pix2pix"
 ```
 
-The `run.py` script converts a directory of images from any direction to a single one, given either as a command line argument:
+Download the pretrained models from
+[here](https://drive.google.com/drive/folders/1Rz8aJ0aqsg1HZe5Sltx9LUylQsfmwpki?usp=sharing)
+and save them in the root directory of the repository, in the `checkpoints`
+directory.
+
+The full solution can be run using the `run.py` script.
+
+The `run.py` script changes the lighting direction in all the images from
+the given directory. The taget lighting direction can be passed as a command
+line agument (from one of the eight possible directions - N, NE, S, SE, W, NW,
+SW, E):
 
 ```
 python run.py --direction W --input images_directory --output output_directory
@@ -66,14 +81,14 @@ or determined automatically from another image using a CNN classifier:
 python run.py --direction_image direction_image.png --input images_directory --output output_directory
 ```
 
-All the processed images will be placed in outpu\_directory. Check `python run.py --help` for more options.
+All the processed images will be placed in the directory indicated by the `output\_directory` flag. Check `python run.py --help` for more options.
 
 
 ## Train new relighting model
 
 The training of the relighting models is based on the pix2pix framework. We provide a custom data preparation script.
 
- - Prepare the data. As required by the pix2pix framework, the input and target images should be side by side. To merge them, run the following command:
+ - The input and target images should be side by side. To merge them, run the following command:
 	```
 	python merger.py  --RIGHT_DIRECTION NW --TARGET ./4500_allDirToNW
 	```

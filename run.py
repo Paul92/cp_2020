@@ -31,7 +31,7 @@ parser = argparse.ArgumentParser(description='Light direction classifier')
 
 parser.add_argument('--input', type=str, help='Path to directory of input images')
 parser.add_argument('--output', type=str, help='Path to output directory', default='output')
-parser.add_argument('--model', type=str, default='./models/small_cnn.h5', help='Path to light classification model')
+parser.add_argument('--model', type=str, default='./checkpoints/small_cnn.h5', help='Path to light classification model')
 
 parser.add_argument('--direction', type=str, default=None, help='Direction to do relighting. Can be N, NE, E, SE, S, SW, W, NW.')
 parser.add_argument('--direction_image', type=str, default=None, help='Path to the image used to determine target direction')
@@ -84,7 +84,7 @@ if __name__ == '__main__':
     opt = argparse.Namespace(aspect_ratio=1.0,
                              batch_size=1,
                              #checkpoints_dir='../mods',
-                             checkpoints_dir='../pytorch-CycleGAN-and-pix2pix/checkpoints/',
+                             checkpoints_dir='checkpoints/',
                              crop_size=256,
                              dataroot=args.input,
                              dataset_mode='single',
