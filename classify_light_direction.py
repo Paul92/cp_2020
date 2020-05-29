@@ -2,7 +2,7 @@ import keras
 import cv2
 import argparse
 from skimage.transform import resize
-import numpy
+import numpy as np
 
 parser = argparse.ArgumentParser(description='Light direction classifier')
 
@@ -13,7 +13,7 @@ opt = parser.parse_args()
 
 model = keras.models.load_model(opt.model)
 
-image = resize(cv2.imread(opt.input, cv2.IMREAD_COLOR), (256, 256)).astype('float32') / 255
+image = np.array([resize(cv2.imread(opt.input, cv2.IMREAD_COLOR), (256, 256)).astype('float32') / 255])
 
 prediction = model.predict(image)
 
@@ -27,5 +27,8 @@ models = {0: '4500_allDirToN_pix2pix',
           6: '4500_allDirToW_pix2pix',
           7: '4500_allDirToNW_pix2pix'}
 
-model = models[np.where(prediction == prediction.max())]
+direction = np.where(prediction[0] == np.max(prediction[0]))[0][0]
+model = models[direction]
+
+print(model)
 

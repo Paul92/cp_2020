@@ -1,4 +1,5 @@
 import os
+import sys
 from options.test_options import TestOptions
 from data import create_dataset
 from models import create_model
@@ -6,9 +7,64 @@ from util.visualizer import save_images
 from util.util import tensor2im, save_image
 import torch
 import argparse
+import keras
+import cv2
+import argparse
+from skimage.transform import resize
+import numpy as np
+
+directions = {0: 'N', 1: 'NE', 2: 'E', 3: 'SE', 4: 'S', 5: 'SW', 6: 'W', 7: 'NW'}
+
+religthing_model_names = {'N': '4500_allDirToN_pix2pix',
+                          'NE': '4500_allDirToNE_pix2pix',
+                          'E': '4500_allDirToE_pix2pix',
+                          'SE': '4500_allDirToSE_pix2pix',
+                          'S': '4500_allDirToS_pix2pix',
+                          'SW': '4500_allDirToSW_pix2pix',
+                          'W': '4500_allDirToW_pix2pix',
+                          'NW': '4500_allDirToNW_pix2pix'}
+
+parser = argparse.ArgumentParser(description='Light direction classifier')
+
+parser.add_argument('--input', type=str, help='Path to input image')
+parser.add_argument('--model', type=str, default='./models/small_cnn.h5', help='Path to light classification model')
+
+parser.add_argument('--direction', type=str, default=None, help='Direction to do relighting. Can be N, NE, E, SE, S, SW, W, NW.')
+parser.add_argument('--direction_image', type=str, default=None, help='Path to the image used to determine target direction')
+
+
+def get_direction(args):
+    if args.direction == None and args.direction_image == None:
+        print('Please choose --direction or --direction_image')
+        sys.exit(1)
+    elif args.direction_image == None:
+        if args.direction not in directions.values():
+            print('The chosen direction can be N, NE, E, SE, S, SW, W, NW.')
+            sys.exit(1)
+        return args.direction
+    else:
+        return classify_direction(args.direction_image, args.model)
+
+
+def classify_direction(input_image, model_path):
+    model = keras.models.load_model(args.model)
+    image = np.array([resize(cv2.imread(args.input, cv2.IMREAD_COLOR), (256, 256)).astype('float32') / 255])
+    prediction = model.predict(image)
+
+    direction = np.where(prediction[0] == np.max(prediction[0]))[0][0]
+    return directions[direction]
 
 
 if __name__ == '__main__':
+
+    args = parser.parse_args()
+    direction = get_direction(args)
+    relighting_model_name = religthing_model_names[direction]
+
+
+    print('Using direction', direction)
+    print('Using relighting model', relighting_model_name)
+
 
     opt = argparse.Namespace(aspect_ratio=1.0,
                              batch_size=1,
@@ -30,7 +86,7 @@ if __name__ == '__main__':
                              max_dataset_size=1000,
                              model='pix2pix',
                              n_layers_D=3,
-                             name='4500_allDirToNW_pix2pix',
+                             name=relighting_model_name,
                              ndf=64,
                              netD='basic',
                              netG='unet_256',
